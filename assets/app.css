@@ -37,7 +37,7 @@ h2 {
 a {
     color: #155b70;
 }
-button, input {
+button, input, select {
     font: inherit;
 }
 button {
@@ -71,6 +71,12 @@ a:focus-visible, button:focus-visible, input:focus-visible {
     width: 100%;
     padding: 9px;
     border: 1px solid #888;
+}
+.formulario select {
+    width: 100%;
+    padding: 9px;
+    border: 1px solid #888;
+    background: white;
 }
 .formulario button {
     margin-top: 22px;
@@ -155,6 +161,36 @@ table {
     border-collapse: collapse;
     background: white;
 }
+.titulo-acciones {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+.boton-enlace {
+    display: inline-block;
+    background: #ffb703;
+    color: #2b2d42;
+    border: 1px solid #a77b0b;
+    padding: 9px 15px;
+    text-decoration: none;
+}
+.acciones {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.acciones form { margin: 0; }
+.boton-secundario { background: white; border-color: #777; }
+.estado { font-weight: bold; }
+.estado.activo { color: #176b35; }
+.estado.inactivo { color: #852719; }
+.pagina-formulario {
+    max-width: 620px;
+    margin: 25px auto;
+    padding: 20px;
+}
+.pagina-formulario h1 { margin-top: 20px; }
 th, td {
     border: 1px solid #bbb;
     padding: 12px;
@@ -181,6 +217,10 @@ th {
     }
     .caja-login {
         margin: 25px 15px;
+    }
+    .titulo-acciones, .acciones {
+        align-items: flex-start;
+        flex-direction: column;
     }
 }
 

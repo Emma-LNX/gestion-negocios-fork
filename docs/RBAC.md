@@ -77,3 +77,23 @@ No se debe aceptar `empresa_id` desde formularios, URL o JavaScript como fuente 
 - `empresa.configurar`
 
 Si un módulo necesita una capacidad nueva, se debe agregar al catálogo, asignarla explícitamente a los roles correspondientes y crear pruebas para accesos permitidos y denegados.
+
+## Gestión de usuarios
+
+La ruta `usuarios` es la primera pantalla administrativa protegida por RBAC:
+
+- El listado exige `usuarios.ver`.
+- Crear, editar, activar o desactivar exige `usuarios.gestionar`.
+- Todas las consultas y escrituras toman `empresa_id` de la identidad autenticada.
+- El correo de una cuenta no se modifica después del alta.
+- Un administrador no puede cambiar su propio rol ni desactivar su propia cuenta durante la sesión.
+
+Los identificadores y roles enviados por formularios se validan en el servidor. Un ID de otra empresa se responde como inexistente y nunca se acepta un `empresa_id` enviado por el cliente.
+
+La prueba funcional del módulo puede ejecutarse, con MySQL y el servidor PHP activos, mediante:
+
+```powershell
+C:\xampp\php\php.exe tests\usuarios_http.php
+```
+
+La prueba crea registros temporales con datos aleatorios y los elimina al finalizar.
