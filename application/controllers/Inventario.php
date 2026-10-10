@@ -11,15 +11,45 @@ class Inventario extends Protected_Controller
         $this->load->library('form_validation');
     }
 
+
     public function index()
     {
         $this->solo_metodo('GET');
         $this->requerir_permiso('inventario.ver');
+
+        // Obtener los filtros desde la URL
+        $busqueda = trim((string) $this->input->get('busqueda', TRUE));
+        $estado = (string) $this->input->get('estado', TRUE);
+        $unidad = (string) $this->input->get('unidad', TRUE);
+
+        // Limitar longitud de búsqueda
+        $busqueda = mb_substr($busqueda, 0, 150, 'UTF-8');
+
+        // Validar estados permitidos
+        if (!in_array($estado, array('', 'bajo', 'normal'), TRUE)) {
+            $estado = '';
+        }
+
+        // Validar unidades permitidas
+        $unidades = array('kg', 'g', 'mg', 'l', 'ml', 'unidad');
+
+        if (!in_array($unidad, $unidades, TRUE)) {
+            $unidad = '';
+        }
+
+        $filtros = array(
+            'busqueda' => $busqueda,
+            'estado' => $estado,
+            'unidad' => $unidad
+        );
+
         $this->load->view('inventario/index', array(
             'usuario' => $this->usuario,
-            'insumos' => $this->insumos_model->listar()
+            'insumos' => $this->insumos_model->listar($filtros),
+            'filtros' => $filtros
         ));
     }
+
 
     public function crear()
     {

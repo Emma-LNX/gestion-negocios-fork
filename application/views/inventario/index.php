@@ -75,6 +75,79 @@
 
             <h1>Inventario</h1>
 
+            <!-- Búsqueda y filtros del inventario -->
+            <form action="<?= html_escape(site_url('inventario')) ?>" method="get" class="filtros-inventario">
+                <input
+                    type="search"
+                    id="busqueda"
+                    name="busqueda"
+                    maxlength="150"
+                    placeholder="Buscar insumo..."
+                    aria-label="Buscar insumo"
+                    value="<?= html_escape($filtros['busqueda']) ?>">
+
+                <select
+                    id="estado"
+                    name="estado"
+                    aria-label="Filtrar por estado">
+                    <option value="">Todos los estados</option>
+
+                    <option
+                        value="bajo"
+                        <?= $filtros['estado'] === 'bajo'
+                            ? 'selected' : '' ?>>
+                        Stock bajo
+                    </option>
+
+                    <option
+                        value="normal"
+                        <?= $filtros['estado'] === 'normal'
+                            ? 'selected' : '' ?>>
+                        Stock normal
+                    </option>
+                </select>
+
+                <select
+                    id="unidad"
+                    name="unidad"
+                    aria-label="Filtrar por unidad">
+                    <option value="">Todas las unidades</option>
+
+                    <?php
+                    $unidades = array(
+                        'unidad' => 'Unidad',
+                        'kg' => 'Kilogramos',
+                        'g' => 'Gramos',
+                        'mg' => 'Miligramos',
+                        'l' => 'Litros',
+                        'ml' => 'Mililitros'
+                    );
+                    ?>
+
+                    <?php foreach ($unidades as $valor => $nombre): ?>
+
+                        <option
+                            value="<?= html_escape($valor) ?>"
+                            <?= $filtros['unidad'] === $valor
+                                ? 'selected' : '' ?>>
+                            <?= html_escape($nombre) ?>
+                        </option>
+
+                    <?php endforeach; ?>
+                </select>
+
+                <button type="submit">
+                    Filtrar
+                </button>
+
+                <a
+                    href="<?= html_escape(site_url('inventario')) ?>"
+                    class="limpiar-filtros">
+                    Limpiar
+                </a>
+
+            </form>
+
             <?php if ($usuario->puede('inventario.gestionar')): ?>
                 <p>
                     <a href="<?= html_escape(site_url('inventario/crear')) ?>">
@@ -85,7 +158,15 @@
 
             <div class="tabla">
 
-                <table>
+                <table class="tabla-inventario">
+                    <colgroup>
+                        <col style="width: 32%;">
+                        <col style="width: 15%;">
+                        <col style="width: 15%;">
+                        <col style="width: 10%;">
+                        <col style="width: 16%;">
+                        <col style="width: 12%;">
+                    </colgroup>
 
                     <thead>
                         <tr>
@@ -93,6 +174,7 @@
                             <th>Cantidad actual</th>
                             <th>Stock mínimo</th>
                             <th>Unidad</th>
+                            <th>Estado</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
@@ -116,6 +198,27 @@
 
                                 <td>
                                     <?= html_escape($item['unidad_medida']) ?>
+                                </td>
+
+                                <?php $cantidadActual = (float) $item['cantidad_actual'];
+                                $stockMinimo = (float) $item['stock_minimo'];
+                                $stockBajo = $cantidadActual <= $stockMinimo;
+                                ?>
+
+                                <td>
+                                    <?php if ($stockBajo): ?>
+
+                                        <span class="estado-stock estado-bajo">
+                                            Stock bajo
+                                        </span>
+
+                                    <?php else: ?>
+
+                                        <span class="estado-stock estado-normal">
+                                            Normal
+                                        </span>
+
+                                    <?php endif; ?>
                                 </td>
 
                                 <td>
@@ -142,10 +245,22 @@
                         <?php endforeach; ?>
 
                         <?php if (empty($insumos)): ?>
-
                             <tr>
-                                <td colspan="5">
-                                    Todavía no hay insumos registrados.
+                                <td colspan="6">
+                                    <?php if (
+                                        $filtros['busqueda'] !== '' ||
+                                        $filtros['estado'] !== '' ||
+                                        $filtros['unidad'] !== ''
+                                    ): ?>
+
+                                        No se encontraron insumos que coincidan
+                                        con los filtros seleccionados.
+
+                                    <?php else: ?>
+
+                                        Todavía no hay insumos registrados.
+
+                                    <?php endif; ?>
                                 </td>
                             </tr>
 

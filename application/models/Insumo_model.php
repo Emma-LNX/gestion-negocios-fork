@@ -9,20 +9,59 @@ class Insumo_model extends MY_Model
         $this->load->database();
     }
 
-    public function listar()
+    public function listar($filtros = array())
     {
-        $q = $this->db->select('id, nombre, cantidad_actual, stock_minimo, unidad_medida, activo')
+        $this->db
+            ->select('id, nombre, cantidad_actual, stock_minimo, unidad_medida, activo')
             ->from('insumos')
             ->where('empresa_id', $this->empresa_id())
-            ->where('activo', 1)
+            ->where('activo', 1);
+
+        // Buscar por nombre
+        if (!empty($filtros['busqueda'])) {
+            $this->db->like('nombre', $filtros['busqueda']);
+        }
+
+        // Filtrar por estado de existencias
+        if (!empty($filtros['estado'])) {
+
+            if ($filtros['estado'] === 'bajo') {
+                $this->db->where(
+                    'cantidad_actual <= stock_minimo',
+                    NULL,
+                    FALSE
+                );
+            }
+
+            if ($filtros['estado'] === 'normal') {
+                $this->db->where(
+                    'cantidad_actual > stock_minimo',
+                    NULL,
+                    FALSE
+                );
+            }
+        }
+
+        // Filtrar por unidad de medida
+        if (!empty($filtros['unidad'])) {
+            $this->db->where(
+                'unidad_medida',
+                $filtros['unidad']
+            );
+        }
+
+        $consulta = $this->db
             ->order_by('nombre', 'ASC')
             ->get();
 
-        if (!$q) {
-            show_error('No se pudo consultar el inventario', 503);
+        if (!$consulta) {
+            show_error(
+                'No se pudo consultar el inventario.',
+                503
+            );
         }
 
-        return $q->result_array();
+        return $consulta->result_array();
     }
 
     public function buscar($id)
