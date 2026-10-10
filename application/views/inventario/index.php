@@ -75,6 +75,35 @@
 
             <h1>Inventario</h1>
 
+            <!-- Resumen general del inventario -->
+            <div class="resumen-inventario">
+
+                <div class="resumen-tarjeta">
+                    <span>Total de insumos</span>
+
+                    <strong>
+                        <?= (int) $resumen['total'] ?>
+                    </strong>
+                </div>
+
+                <div class="resumen-tarjeta">
+                    <span>Stock normal</span>
+
+                    <strong class="resumen-normal">
+                        <?= (int) $resumen['normales'] ?>
+                    </strong>
+                </div>
+
+                <div class="resumen-tarjeta">
+                    <span>Stock bajo</span>
+
+                    <strong class="resumen-bajo">
+                        <?= (int) $resumen['bajos'] ?>
+                    </strong>
+                </div>
+
+            </div>
+
             <!-- Búsqueda y filtros del inventario -->
             <form action="<?= html_escape(site_url('inventario')) ?>" method="get" class="filtros-inventario">
                 <input
@@ -134,6 +163,60 @@
                         </option>
 
                     <?php endforeach; ?>
+                </select>
+
+                <select
+                    id="orden"
+                    name="orden"
+                    aria-label="Ordenar inventario">
+                    <option
+                        value="nombre_asc"
+                        <?= $filtros['orden'] === 'nombre_asc'
+                            ? 'selected' : '' ?>>
+                        Nombre A-Z
+                    </option>
+
+                    <option
+                        value="nombre_desc"
+                        <?= $filtros['orden'] === 'nombre_desc'
+                            ? 'selected' : '' ?>>
+                        Nombre Z-A
+                    </option>
+
+                    <option
+                        value="cantidad_asc"
+                        <?= $filtros['orden'] === 'cantidad_asc'
+                            ? 'selected' : '' ?>>
+                        Menor cantidad
+                    </option>
+
+                    <option
+                        value="cantidad_desc"
+                        <?= $filtros['orden'] === 'cantidad_desc'
+                            ? 'selected' : '' ?>>
+                        Mayor cantidad
+                    </option>
+
+                    <option
+                        value="minimo_asc"
+                        <?= $filtros['orden'] === 'minimo_asc'
+                            ? 'selected' : '' ?>>
+                        Menor stock mínimo
+                    </option>
+
+                    <option
+                        value="minimo_desc"
+                        <?= $filtros['orden'] === 'minimo_desc'
+                            ? 'selected' : '' ?>>
+                        Mayor stock mínimo
+                    </option>
+
+                    <option
+                        value="stock_bajo"
+                        <?= $filtros['orden'] === 'stock_bajo'
+                            ? 'selected' : '' ?>>
+                        Stock bajo primero
+                    </option>
                 </select>
 
                 <button type="submit">

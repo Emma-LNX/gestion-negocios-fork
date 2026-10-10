@@ -17,12 +17,12 @@ class Insumo_model extends MY_Model
             ->where('empresa_id', $this->empresa_id())
             ->where('activo', 1);
 
-        // Buscar por nombre
+        // Búsqueda por nombre
         if (!empty($filtros['busqueda'])) {
             $this->db->like('nombre', $filtros['busqueda']);
         }
 
-        // Filtrar por estado de existencias
+        // Filtro por estado
         if (!empty($filtros['estado'])) {
 
             if ($filtros['estado'] === 'bajo') {
@@ -42,7 +42,7 @@ class Insumo_model extends MY_Model
             }
         }
 
-        // Filtrar por unidad de medida
+        // Filtro por unidad
         if (!empty($filtros['unidad'])) {
             $this->db->where(
                 'unidad_medida',
@@ -50,9 +50,54 @@ class Insumo_model extends MY_Model
             );
         }
 
-        $consulta = $this->db
-            ->order_by('nombre', 'ASC')
-            ->get();
+        // Ordenamiento
+        $orden = isset($filtros['orden'])
+            ? $filtros['orden']
+            : 'nombre_asc';
+
+        switch ($orden) {
+
+            case 'nombre_desc':
+                $this->db->order_by('nombre', 'DESC');
+                break;
+
+            case 'cantidad_asc':
+                $this->db->order_by('cantidad_actual', 'ASC');
+                $this->db->order_by('nombre', 'ASC');
+                break;
+
+            case 'cantidad_desc':
+                $this->db->order_by('cantidad_actual', 'DESC');
+                $this->db->order_by('nombre', 'ASC');
+                break;
+
+            case 'minimo_asc':
+                $this->db->order_by('stock_minimo', 'ASC');
+                $this->db->order_by('nombre', 'ASC');
+                break;
+
+            case 'minimo_desc':
+                $this->db->order_by('stock_minimo', 'DESC');
+                $this->db->order_by('nombre', 'ASC');
+                break;
+
+            case 'stock_bajo':
+                // Priorizar insumos con stock bajo
+                $this->db->order_by(
+                    '(cantidad_actual <= stock_minimo)',
+                    'DESC',
+                    FALSE
+                );
+                $this->db->order_by('nombre', 'ASC');
+                break;
+
+            case 'nombre_asc':
+            default:
+                $this->db->order_by('nombre', 'ASC');
+                break;
+        }
+
+        $consulta = $this->db->get();
 
         if (!$consulta) {
             show_error(
@@ -62,6 +107,18 @@ class Insumo_model extends MY_Model
         }
 
         return $consulta->result_array();
+    }
+
+    public function resumen()
+    {
+        $consulta = $this->db->select("COUNT(*) AS total, COALESCE(SUM(CASE WHEN cantidad_actual > stock_minimo THEN 1 ELSE 0 END), 0) AS normales, COALESCE(SUM(CASE WHEN cantidad_actual <= stock_minimo THEN 1 ELSE 0 END), 0) AS bajos", FALSE)
+            ->from('insumos')->where('empresa_id', $this->empresa_id())->where('activo', 1)->get();
+
+        if (!$consulta) {
+            show_error('No se pudo consultar el resumen del inventario.', 503);
+        }
+
+        return $consulta->row_array();
     }
 
     public function buscar($id)
