@@ -11,15 +11,59 @@ class Inventario extends Protected_Controller
         $this->load->library('form_validation');
     }
 
+
     public function index()
     {
         $this->solo_metodo('GET');
         $this->requerir_permiso('inventario.ver');
+
+        $busqueda = trim((string) $this->input->get('busqueda', TRUE));
+        $estado = (string) $this->input->get('estado', TRUE);
+        $unidad = (string) $this->input->get('unidad', TRUE);
+
+        $orden = (string) $this->input->get('orden', TRUE);
+
+        $ordenesPermitidos = array(
+            'nombre_asc',
+            'nombre_desc',
+            'cantidad_asc',
+            'cantidad_desc',
+            'minimo_asc',
+            'minimo_desc',
+            'stock_bajo'
+        );
+
+        if (!in_array($orden, $ordenesPermitidos, TRUE)) {
+            $orden = 'nombre_asc';
+        }
+
+        $busqueda = mb_substr($busqueda, 0, 150, 'UTF-8');
+
+        if (!in_array($estado, array('', 'bajo', 'normal'), TRUE)) {
+            $estado = '';
+        }
+
+        $unidades = array('kg', 'g', 'mg', 'l', 'ml', 'unidad');
+
+        if (!in_array($unidad, $unidades, TRUE)) {
+            $unidad = '';
+        }
+
+        $filtros = array(
+            'busqueda' => $busqueda,
+            'estado' => $estado,
+            'unidad' => $unidad,
+            'orden' => $orden
+        );
+
         $this->load->view('inventario/index', array(
             'usuario' => $this->usuario,
-            'insumos' => $this->insumos_model->listar()
+            'insumos' => $this->insumos_model->listar($filtros),
+            'filtros' => $filtros,
+            'resumen' => $this->insumos_model->resumen()
         ));
     }
+
 
     public function crear()
     {
