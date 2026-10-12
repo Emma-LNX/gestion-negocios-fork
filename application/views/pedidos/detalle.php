@@ -1,271 +1,189 @@
-<!doctype html>
-<html lang="es">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Detalle del pedido - Gestión de negocios</title>
+<?php $this->load->view('plantilla/cabecera', array('titulo' => 'Pedidos', 'seccion' => 'pedidos', 'usuario' => $usuario)); ?>
 
-    <link
-        rel="stylesheet"
-        href="<?= html_escape(base_url('assets/app.css')) ?>"
-    >
-</head>
+<?php $puede_editar = $pedido['estado'] === 'borrador' && $usuario->puede('pedidos.crear'); ?>
 
-<body>
-    <?php
-    $puede_editar = (
-        $pedido['estado'] === 'borrador'
-        && $usuario->puede('pedidos.crear')
-    );
-    ?>
+<p>
+    <a class="boton boton-secundario" href="<?= html_escape(site_url('pedidos')) ?>"><img class="icono" src="<?= html_escape(base_url('assets/iconos/volver.svg')) ?>" alt="" width="22" height="22"><span>Volver a pedidos</span></a>
+</p>
 
-    <header class="cabecera">
-        <div>
-            <strong>
-                <?= html_escape($usuario->empresaNombre()) ?>
-            </strong>
-            <p>Gestión de negocios</p>
-        </div>
+<section class="recuadro">
+    <h1>Pedido #<?= (int) $pedido['numero'] ?></h1>
 
-        <span>
-            Usuario: <?= html_escape($usuario->nombre()) ?>
-            (<?= html_escape($usuario->rolNombre()) ?>)
-        </span>
-    </header>
+    <p>
+        <strong>Referencia:</strong>
+        <?= html_escape($pedido['referencia']) ?>
+    </p>
 
-    <div class="estructura">
-        <nav class="menu" aria-label="Menú principal">
-            <a href="<?= html_escape(site_url('inicio')) ?>">
-                Inicio
-            </a>
+    <p>
+        <strong>Estado:</strong>
+        <?= html_escape($pedido['estado']) ?>
+    </p>
 
-            <?php if ($usuario->puede('productos.ver')): ?>
-                <a href="<?= html_escape(site_url('productos')) ?>">
-                    Productos de prueba
-                </a>
-            <?php endif; ?>
+    <p>
+        <strong>Pago:</strong>
+        <?= html_escape($pedido['estado_pago']) ?>
+    </p>
 
-            <?php if ($usuario->puede('inventario.ver')): ?>
-                <a href="<?= html_escape(site_url('inventario')) ?>">
-                    Inventario
-                </a>
-            <?php endif; ?>
+    <?php if ($puede_editar): ?>
+        <h2 class="subtitulo-linea">Agregar producto</h2>
 
-            <?php if ($usuario->puede('pedidos.ver')): ?>
-                <a
-                    class="seleccionado"
-                    href="<?= html_escape(site_url('pedidos')) ?>"
-                    aria-current="page"
-                >
-                    Pedidos
-                </a>
-            <?php endif; ?>
+        <?php if (!empty($productos)): ?>
+            <?= form_open(
+                'pedidos/agregar/' . (int) $pedido['id'], array('class' => 'agregar-producto')
+            ) ?>
 
-            <?= form_open('salir') ?>
-                <button type="submit" class="boton-salir">
-                    Cerrar sesión
-                </button>
+                <p>
+                    <label for="producto_id">Producto</label>
+
+                    <select
+                        id="producto_id"
+                        name="producto_id"
+                        required
+                    >
+                        <option value="">
+                            Selecciona un producto
+                        </option>
+
+                        <?php foreach ($productos as $producto): ?>
+                            <option
+                                value="<?= (int) $producto['id'] ?>"
+                            >
+                                <?= html_escape($producto['nombre']) ?>
+                                — Q <?= number_format(
+                                    (float) $producto['precio'],
+                                    2
+                                ) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </p>
+
+                <p>
+                    <label for="cantidad">Cantidad</label>
+
+                    <input
+                        type="number"
+                        id="cantidad"
+                        name="cantidad"
+                        min="1"
+                        max="999"
+                        step="1"
+                        value="1"
+                        required
+                    >
+                </p>
+
+                <button type="submit"><img class="icono" src="<?= html_escape(base_url('assets/iconos/agregar.svg')) ?>" alt="" width="22" height="22"><span>Agregar al pedido</span></button>
+
             <?= form_close() ?>
-        </nav>
-
-        <main class="contenido">
+        <?php else: ?>
             <p>
-                <a href="<?= html_escape(site_url('pedidos')) ?>">
-                    Volver a pedidos
-                </a>
+                No hay productos registrados para esta empresa.
             </p>
+        <?php endif; ?>
+    <?php endif; ?>
 
-            <section class="recuadro">
-                <h1>Pedido #<?= (int) $pedido['id'] ?></h1>
+    <h2 class="subtitulo-linea">Productos del pedido</h2>
 
-                <p>
-                    <strong>Referencia:</strong>
-                    <?= html_escape($pedido['referencia']) ?>
-                </p>
+    <div class="tabla">
+        <table>
+            <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th>Cantidad</th>
+                    <th>Precio unitario</th>
+                    <th>Subtotal</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
 
-                <p>
-                    <strong>Estado:</strong>
-                    <?= html_escape($pedido['estado']) ?>
-                </p>
+            <tbody>
+                <?php foreach ($detalles as $detalle): ?>
+                    <tr>
+                        <td>
+                            <?= html_escape(
+                                $detalle['producto_nombre']
+                            ) ?>
+                        </td>
 
-                <p>
-                    <strong>Pago:</strong>
-                    <?= html_escape($pedido['estado_pago']) ?>
-                </p>
+                        <td>
+                            <?php if ($puede_editar): ?>
+                                <?= form_open(
+                                    'pedidos/actualizar/'
+                                    . (int) $pedido['id']
+                                    . '/'
+                                    . (int) $detalle['id'], array('class' => 'accion-detalle')
+                                ) ?>
 
-                <?php if ($puede_editar): ?>
-                    <h2>Agregar producto</h2>
-
-                    <?php if (!empty($productos)): ?>
-                        <?= form_open(
-                            'pedidos/agregar/' . (int) $pedido['id']
-                        ) ?>
-
-                            <p>
-                                <label for="producto_id">Producto</label>
-
-                                <select
-                                    id="producto_id"
-                                    name="producto_id"
-                                    required
-                                >
-                                    <option value="">
-                                        Selecciona un producto
-                                    </option>
-
-                                    <?php foreach ($productos as $producto): ?>
-                                        <option
-                                            value="<?= (int) $producto['id'] ?>"
-                                        >
-                                            <?= html_escape($producto['nombre']) ?>
-                                            — Q <?= number_format(
-                                                (float) $producto['precio'],
-                                                2
-                                            ) ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </p>
-
-                            <p>
-                                <label for="cantidad">Cantidad</label>
-
-                                <input
-                                    type="number"
-                                    id="cantidad"
-                                    name="cantidad"
-                                    min="1"
-                                    max="999"
-                                    step="1"
-                                    value="1"
-                                    required
-                                >
-                            </p>
-
-                            <button type="submit">
-                                Agregar al pedido
-                            </button>
-
-                        <?= form_close() ?>
-                    <?php else: ?>
-                        <p>
-                            No hay productos registrados para esta empresa.
-                        </p>
-                    <?php endif; ?>
-                <?php endif; ?>
-
-                <h2>Productos del pedido</h2>
-
-                <div class="tabla">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Producto</th>
-                                <th>Cantidad</th>
-                                <th>Precio unitario</th>
-                                <th>Subtotal</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-
-                        <tbody>
-                            <?php foreach ($detalles as $detalle): ?>
-                                <tr>
-                                    <td>
-                                        <?= html_escape(
+                                    <input
+                                        type="number"
+                                        name="cantidad"
+                                        min="1"
+                                        max="999"
+                                        step="1"
+                                        required
+                                        aria-label="Cantidad de <?= html_escape(
                                             $detalle['producto_nombre']
-                                        ) ?>
-                                    </td>
+                                        ) ?>"
+                                        value="<?= (int) $detalle['cantidad'] ?>"
+                                    >
 
-                                    <td>
-                                        <?php if ($puede_editar): ?>
-                                            <?= form_open(
-                                                'pedidos/actualizar/'
-                                                . (int) $pedido['id']
-                                                . '/'
-                                                . (int) $detalle['id']
-                                            ) ?>
+                                    <button type="submit" class="boton-compacto boton-secundario"><img class="icono" src="<?= html_escape(base_url('assets/iconos/guardar.svg')) ?>" alt="" width="22" height="22"><span>Guardar</span></button>
 
-                                                <input
-                                                    type="number"
-                                                    name="cantidad"
-                                                    min="1"
-                                                    max="999"
-                                                    step="1"
-                                                    required
-                                                    aria-label="Cantidad de <?= html_escape(
-                                                        $detalle['producto_nombre']
-                                                    ) ?>"
-                                                    value="<?= (int) $detalle['cantidad'] ?>"
-                                                >
-
-                                                <button type="submit">
-                                                    Actualizar cantidad
-                                                </button>
-
-                                            <?= form_close() ?>
-                                        <?php else: ?>
-                                            <?= (int) $detalle['cantidad'] ?>
-                                        <?php endif; ?>
-                                    </td>
-
-                                    <td>
-                                        Q <?= number_format(
-                                            (float) $detalle['precio_unitario'],
-                                            2
-                                        ) ?>
-                                    </td>
-
-                                    <td>
-                                        Q <?= number_format(
-                                            (float) $detalle['precio_unitario']
-                                            * (int) $detalle['cantidad'],
-                                            2
-                                        ) ?>
-                                    </td>
-
-                                    <td>
-                                        <?php if ($puede_editar): ?>
-                                            <?= form_open(
-                                                'pedidos/quitar/'
-                                                . (int) $pedido['id']
-                                                . '/'
-                                                . (int) $detalle['id']
-                                            ) ?>
-
-                                                <button type="submit">
-                                                    Quitar
-                                                </button>
-
-                                            <?= form_close() ?>
-                                        <?php else: ?>
-                                            Sin acciones disponibles
-                                        <?php endif; ?>
-                                    </td>
-                                </tr>
-                            <?php endforeach; ?>
-
-                            <?php if (empty($detalles)): ?>
-                                <tr>
-                                    <td colspan="5">
-                                        Este pedido todavía no tiene productos.
-                                    </td>
-                                </tr>
+                                <?= form_close() ?>
+                            <?php else: ?>
+                                <?= (int) $detalle['cantidad'] ?>
                             <?php endif; ?>
-                        </tbody>
-                    </table>
-                </div>
+                        </td>
 
-                <p>
-                    <strong>Total:</strong>
-                    Q <?= number_format((float) $pedido['total'], 2) ?>
-                </p>
-            </section>
-        </main>
+                        <td>
+                            Q <?= number_format(
+                                (float) $detalle['precio_unitario'],
+                                2
+                            ) ?>
+                        </td>
+
+                        <td>
+                            Q <?= number_format(
+                                (float) $detalle['precio_unitario']
+                                * (int) $detalle['cantidad'],
+                                2
+                            ) ?>
+                        </td>
+
+                        <td>
+                            <?php if ($puede_editar): ?>
+                                <?= form_open(
+                                    'pedidos/quitar/'
+                                    . (int) $pedido['id']
+                                    . '/'
+                                    . (int) $detalle['id'], array('class' => 'accion-detalle')
+                                ) ?>
+
+                                    <button type="submit" class="boton-compacto boton-quitar"><img class="icono" src="<?= html_escape(base_url('assets/iconos/quitar.svg')) ?>" alt="" width="22" height="22"><span>Quitar</span></button>
+
+                                <?= form_close() ?>
+                            <?php else: ?>
+                                Sin acciones disponibles
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+
+                <?php if (empty($detalles)): ?>
+                    <tr>
+                        <td colspan="5">
+                            Este pedido todavía no tiene productos.
+                        </td>
+                    </tr>
+                <?php endif; ?>
+            </tbody>
+        </table>
     </div>
 
-    <footer>
-        Proyecto de gestión de negocios
-    </footer>
-</body>
-</html>
+    <p class="total-pedido"><strong>Total del pedido</strong>
+        Q <?= number_format((float) $pedido['total'], 2) ?>
+    </p>
+</section>
+
+<?php $this->load->view('plantilla/pie'); ?>

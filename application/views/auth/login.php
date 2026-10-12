@@ -3,40 +3,37 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Login - Gestión de negocios</title>
-    <link rel="stylesheet" href="<?= html_escape(base_url('assets/app.css')) ?>">
-    <script
-        src="<?= html_escape(base_url('assets/login.js')) ?>"
-        defer
-    ></script>
+    <title>Iniciar sesión - Gestión de negocios</title>
+    <link rel="stylesheet" href="<?= html_escape(base_url('assets/app.css?v=2')) ?>">
+    <script src="<?= html_escape(base_url('assets/login.js?v=2')) ?>" defer></script>
 </head>
-<body>
-    <header class="cabecera"><strong>Gestión de negocios</strong></header>
+<body class="pagina-login">
+    <header class="cabecera">
+        <div class="marca"><span class="marca-icono"><img class="icono" src="<?= html_escape(base_url('assets/iconos/negocio.svg')) ?>" alt="" width="22" height="22"></span><div><strong>Gestión de negocios</strong><p>Tu empresa, en un solo lugar</p></div></div>
+    </header>
     <main class="caja-login">
+        <span class="login-icono"><img class="icono" src="<?= html_escape(base_url('assets/iconos/candado.svg')) ?>" alt="" width="22" height="22"></span>
+        <p class="sobretitulo">BIENVENIDO</p>
         <h1>Iniciar sesión</h1>
-        <p>Ingresa con el correo y la contraseña de tu cuenta.</p>
+        <p class="descripcion">Ingresa con los datos de tu cuenta.</p>
         <?php if ($error): ?>
             <p class="error" role="alert"><?= html_escape($error) ?></p>
         <?php endif; ?>
-
         <?= form_open('login', array('class' => 'formulario')) ?>
             <label for="correo">Correo electrónico</label>
-            <input id="correo" name="correo" type="email" maxlength="190" autocomplete="username" required value="<?= html_escape($correo) ?>">
-
+            <input id="correo" name="correo" type="email" maxlength="190" autocomplete="username" placeholder="tu@correo.com" required value="<?= html_escape($correo) ?>">
             <label for="password">Contraseña</label>
-            <input id="password" name="password" type="password" maxlength="72" autocomplete="current-password" required>
-            <button
-                type="button"
-                id="ver-password"
-                aria-controls="password"
-                aria-pressed="false"
-            >
-                Mostrar contraseña
-            </button>
-
-            <button type="submit">Ingresar</button>
+            <div class="campo-password">
+                <input id="password" name="password" type="password" maxlength="72" autocomplete="current-password" required>
+                <button type="button" id="ver-password" aria-label="Mostrar contraseña" title="Mostrar contraseña" aria-controls="password" aria-pressed="false">
+                    <span class="mostrar-password"><img class="icono" src="<?= html_escape(base_url('assets/iconos/ver.svg')) ?>" alt="" width="22" height="22"></span>
+                    <span class="ocultar-password" hidden><img class="icono" src="<?= html_escape(base_url('assets/iconos/ocultar.svg')) ?>" alt="" width="22" height="22"></span>
+                </button>
+            </div>
+            <button type="submit" class="boton-ingresar"><img class="icono" src="<?= html_escape(base_url('assets/iconos/flecha.svg')) ?>" alt="" width="22" height="22"><span>Ingresar</span></button>
         <?= form_close() ?>
-        <p class="nota">Si necesitas una cuenta, consulta al administrador de tu empresa.</p>
+        <p class="nota">¿Necesitas una cuenta? Consulta al administrador de tu empresa.</p>
     </main>
+    <footer>Gestión de negocios · Proyecto de programación orientada a objetos</footer>
 </body>
 </html>

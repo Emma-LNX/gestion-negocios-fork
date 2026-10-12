@@ -1,153 +1,42 @@
-<!doctype html>
-<html lang="es">
+<?php $this->load->view('plantilla/cabecera', array('titulo' => 'Pedidos', 'seccion' => 'pedidos', 'usuario' => $usuario)); ?>
 
-<head>
-    <meta charset="utf-8">
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1">
+<p>
+    <a class="boton boton-secundario" href="<?= html_escape(site_url('pedidos')) ?>"><img class="icono" src="<?= html_escape(base_url('assets/iconos/volver.svg')) ?>" alt="" width="22" height="22"><span>Volver a pedidos</span></a>
+</p>
 
-    <title>Nuevo pedido - Gestión de negocios</title>
+<section class="recuadro formulario formulario-pedido">
 
-    <link
-        rel="stylesheet"
-        href="<?= html_escape(base_url('assets/app.css')) ?>">
-</head>
+    <h1>Nuevo pedido</h1><p class="descripcion">Indica una mesa, un cliente o una referencia. Después podrás agregar los productos.</p>
 
-<body>
+    <?php if (validation_errors()): ?>
 
-    <header class="cabecera">
-
-        <div>
-            <strong>
-                <?= html_escape($usuario->empresaNombre()) ?>
-            </strong>
-
-            <p>Gestión de negocios</p>
+        <div class="error" role="alert">
+            <?= validation_errors() ?>
         </div>
 
-        <span>
-            Usuario:
-            <?= html_escape($usuario->nombre()) ?>
+    <?php endif; ?>
 
-            (<?= html_escape($usuario->rolNombre()) ?>)
-        </span>
+    <?= form_open('pedidos/crear') ?>
 
-    </header>
+    <label for="referencia">
+        Referencia del pedido
+    </label>
 
+    <input
+        id="referencia"
+        name="referencia"
+        type="text"
+        maxlength="100"
+        required
+        placeholder="Ej. Mesa 5, Cliente López, Orden 123"
+        value="<?= html_escape(
+                    set_value('referencia')
+                ) ?>">
 
-    <div class="estructura">
+    <button type="submit"><img class="icono" src="<?= html_escape(base_url('assets/iconos/agregar.svg')) ?>" alt="" width="22" height="22"><span>Crear pedido</span></button>
 
-        <nav class="menu" aria-label="Menú principal">
+    <?= form_close() ?>
 
-            <a href="<?= html_escape(site_url('inicio')) ?>">
-                Inicio
-            </a>
+</section>
 
-
-            <?php if ($usuario->puede('productos.ver')): ?>
-
-                <a href="<?= html_escape(site_url('productos')) ?>">
-                    Productos de prueba
-                </a>
-
-            <?php endif; ?>
-
-
-            <?php if ($usuario->puede('inventario.ver')): ?>
-
-                <a href="<?= html_escape(site_url('inventario')) ?>">
-                    Inventario
-                </a>
-
-            <?php endif; ?>
-
-
-            <?php if ($usuario->puede('pedidos.ver')): ?>
-
-                <a
-                    class="seleccionado"
-                    href="<?= html_escape(site_url('pedidos')) ?>"
-                    aria-current="page">
-                    Pedidos
-                </a>
-
-            <?php endif; ?>
-
-
-            <?= form_open('salir') ?>
-
-            <button
-                type="submit"
-                class="boton-salir">
-                Cerrar sesión
-            </button>
-
-            <?= form_close() ?>
-
-        </nav>
-
-
-        <main class="contenido">
-
-            <p>
-                <a href="<?= html_escape(site_url('pedidos')) ?>">
-                    Volver a pedidos
-                </a>
-            </p>
-
-
-            <section class="recuadro formulario">
-
-                <h1>Nuevo pedido</h1>
-
-
-                <?php if (validation_errors()): ?>
-
-                    <div class="error">
-                        <?= validation_errors() ?>
-                    </div>
-
-                <?php endif; ?>
-
-
-                <?= form_open('pedidos/crear') ?>
-
-
-                <label for="referencia">
-                    Referencia del pedido
-                </label>
-
-                <input
-                    id="referencia"
-                    name="referencia"
-                    type="text"
-                    maxlength="100"
-                    required
-                    placeholder="Ej. Mesa 5, Cliente López, Orden 123"
-                    value="<?= html_escape(
-                                set_value('referencia')
-                            ) ?>">
-
-
-                <button type="submit">
-                    Crear pedido
-                </button>
-
-
-                <?= form_close() ?>
-
-            </section>
-
-        </main>
-
-    </div>
-
-
-    <footer>
-        Proyecto de gestión de negocios
-    </footer>
-
-</body>
-
-</html>
+<?php $this->load->view('plantilla/pie'); ?>

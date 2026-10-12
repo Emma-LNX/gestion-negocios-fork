@@ -1,114 +1,28 @@
-<!doctype html>
-<html lang="es">
+<?php $this->load->view('plantilla/cabecera', array('titulo' => 'Productos', 'seccion' => 'productos', 'usuario' => $usuario)); ?>
 
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Detalle de producto - Gestión de negocios</title>
-    <link rel="stylesheet" href="<?= html_escape(base_url('assets/app.css')) ?>">
-</head>
+<p>
+    <a class="boton boton-secundario" href="<?= html_escape(site_url('productos')) ?>"><img class="icono" src="<?= html_escape(base_url('assets/iconos/volver.svg')) ?>" alt="" width="22" height="22"><span>Volver a productos</span></a>
+</p>
 
-<body>
+<section class="recuadro">
 
-    <header class="cabecera">
-        <div>
-            <strong><?= html_escape($usuario->empresaNombre()) ?></strong>
-            <p>Gestión de negocios</p>
-        </div>
+    <h1>
+        <?= html_escape($producto['nombre']) ?>
+    </h1>
 
-        <span>
-            Usuario: <?= html_escape($usuario->nombre()) ?>
-            (<?= html_escape($usuario->rolNombre()) ?>)
-        </span>
-    </header>
+    <p>
+        Código:
+        <?= html_escape($producto['sku']) ?>
+    </p>
 
-    <div class="estructura">
+    <p>
+        Precio:
+        Q <?= number_format(
+                (float) $producto['precio'],
+                2
+            ) ?>
+    </p>
 
-        <nav class="menu" aria-label="Menú principal">
+</section>
 
-            <a href="<?= html_escape(site_url('inicio')) ?>">
-                Inicio
-            </a>
-
-            <?php if ($usuario->puede('productos.ver')): ?>
-
-                <a
-                    class="seleccionado"
-                    href="<?= html_escape(site_url('productos')) ?>"
-                    aria-current="page">
-                    Productos de prueba
-                </a>
-
-            <?php endif; ?>
-
-
-            <?php if ($usuario->puede('inventario.ver')): ?>
-
-                <a href="<?= html_escape(site_url('inventario')) ?>">
-                    Inventario
-                </a>
-
-            <?php endif; ?>
-
-
-            <?php if ($usuario->puede('pedidos.ver')): ?>
-
-                <a href="<?= html_escape(site_url('pedidos')) ?>">
-                    Pedidos
-                </a>
-
-            <?php endif; ?>
-
-
-            <?= form_open('salir') ?>
-
-            <button
-                type="submit"
-                class="boton-salir">
-                Cerrar sesión
-            </button>
-
-            <?= form_close() ?>
-
-        </nav>
-
-        <main class="contenido">
-
-            <p>
-                <a href="<?= html_escape(site_url('productos')) ?>">
-                    Volver a productos de prueba
-                </a>
-            </p>
-
-            <section class="recuadro">
-
-                <h1>
-                    <?= html_escape($producto['nombre']) ?>
-                </h1>
-
-                <p>
-                    Código:
-                    <?= html_escape($producto['sku']) ?>
-                </p>
-
-                <p>
-                    Precio:
-                    Q <?= number_format(
-                            (float) $producto['precio'],
-                            2
-                        ) ?>
-                </p>
-
-            </section>
-
-        </main>
-
-    </div>
-
-    <footer>
-        Proyecto de gestión de negocios
-    </footer>
-
-</body>
-
-</html>
+<?php $this->load->view('plantilla/pie'); ?>

@@ -1,61 +1,39 @@
-<!doctype html>
-<html lang="es">
-
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Inicio - Gestión de negocios</title>
-    <link rel="stylesheet" href="<?= html_escape(base_url('assets/app.css')) ?>">
-</head>
-
-<body>
-    <header class="cabecera">
-        <div>
-            <strong><?= html_escape($usuario->empresaNombre()) ?></strong>
-            <p>Gestión de negocios</p>
-        </div>
-        <span>
-            Usuario: <?= html_escape($usuario->nombre()) ?>
-            (<?= html_escape($usuario->rolNombre()) ?>)
-        </span>
-    </header>
-
-    <div class="estructura">
-        <nav class="menu" aria-label="Menú principal">
-            <a class="seleccionado" href="<?= html_escape(site_url('inicio')) ?>" aria-current="page">Inicio</a>
-            <?php if ($usuario->puede('productos.ver')): ?>
-                <a href="<?= html_escape(site_url('productos')) ?>">Productos de prueba</a>
-            <?php endif; ?>
-
-            <?php if ($usuario->puede('inventario.ver')): ?>
-                <a href="<?= html_escape(site_url('inventario')) ?>">
-                    Inventario
-                </a>
-            <?php endif; ?>
-            <?php if ($usuario->puede('pedidos.ver')): ?>
-                <a href="<?= html_escape(site_url('pedidos')) ?>">
-                    Pedidos
-                </a>
-            <?php endif; ?>
-            <?= form_open('salir') ?>
-            <button type="submit" class="boton-salir">Cerrar sesión</button>
-            <?= form_close() ?>
-        </nav>
-
-        <main class="contenido">
-            <h1>Inicio</h1>
-            <section class="recuadro">
-                <h2>Bienvenido, <?= html_escape($usuario->nombre()) ?></h2>
-                <p>Has iniciado sesión en <strong><?= html_escape($usuario->empresaNombre()) ?></strong>.</p>
-                <p>Desde aquí podrás acceder a las opciones de tu empresa conforme se agreguen al sistema.</p>
-            </section>
-            <section class="recuadro aviso">
-                <h2>Sistema en desarrollo</h2>
-                <p>Por ahora está disponible el inicio y cierre de sesión. Los módulos se agregarán en las siguientes entregas.</p>
-            </section>
-        </main>
+<?php $this->load->view('plantilla/cabecera', array('titulo' => 'Inicio', 'seccion' => 'inicio', 'usuario' => $usuario)); ?>
+<p class="sobretitulo">TU NEGOCIO</p>
+<h1>Inicio</h1>
+<section class="recuadro bienvenida">
+    <div>
+        <h2>Hola, <?= html_escape($usuario->nombre()) ?></h2>
+        <p>Bienvenido a <strong><?= html_escape($usuario->empresaNombre()) ?></strong>.</p>
+        <p class="descripcion">Elige una opción para empezar a trabajar.</p>
     </div>
-    <footer>Proyecto de gestión de negocios</footer>
-</body>
-
-</html>
+    <span class="bienvenida-icono"><img class="icono" src="<?= html_escape(base_url('assets/iconos/negocio.svg')) ?>" alt="" width="22" height="22"></span>
+</section>
+<h2>Accesos rápidos</h2>
+<div class="accesos">
+    <?php if ($usuario->puede('inventario.ver')): ?>
+        <a class="acceso" href="<?= html_escape(site_url('inventario')) ?>">
+            <span class="acceso-icono"><img class="icono" src="<?= html_escape(base_url('assets/iconos/inventario.svg')) ?>" alt="" width="22" height="22"></span>
+            <h3>Inventario</h3><p>Revisa insumos, cantidades y stock mínimo.</p>
+            <span class="acceso-abrir">Abrir inventario <img class="icono" src="<?= html_escape(base_url('assets/iconos/flecha.svg')) ?>" alt="" width="22" height="22"></span>
+        </a>
+    <?php endif; ?>
+    <?php if ($usuario->puede('pedidos.ver')): ?>
+        <a class="acceso" href="<?= html_escape(site_url('pedidos')) ?>">
+            <span class="acceso-icono"><img class="icono" src="<?= html_escape(base_url('assets/iconos/pedidos.svg')) ?>" alt="" width="22" height="22"></span>
+            <h3>Pedidos</h3><p>Consulta los pedidos y sus productos.</p>
+            <span class="acceso-abrir">Abrir pedidos <img class="icono" src="<?= html_escape(base_url('assets/iconos/flecha.svg')) ?>" alt="" width="22" height="22"></span>
+        </a>
+    <?php endif; ?>
+    <?php if ($usuario->puede('productos.ver')): ?>
+        <a class="acceso" href="<?= html_escape(site_url('productos')) ?>">
+            <span class="acceso-icono"><img class="icono" src="<?= html_escape(base_url('assets/iconos/productos.svg')) ?>" alt="" width="22" height="22"></span>
+            <h3>Productos</h3><p>Consulta el catálogo y los precios de tu empresa.</p>
+            <span class="acceso-abrir">Ver productos <img class="icono" src="<?= html_escape(base_url('assets/iconos/flecha.svg')) ?>" alt="" width="22" height="22"></span>
+        </a>
+    <?php endif; ?>
+</div>
+<?php if (!$usuario->puede('inventario.ver') && !$usuario->puede('pedidos.ver') && !$usuario->puede('productos.ver')): ?>
+    <p class="recuadro aviso">Tu cuenta todavía no tiene módulos asignados. Consulta al administrador de tu empresa.</p>
+<?php endif; ?>
+<?php $this->load->view('plantilla/pie'); ?>
