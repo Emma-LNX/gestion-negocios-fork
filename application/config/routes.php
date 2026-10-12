@@ -1,5 +1,5 @@
 <?php
-defined('BASEPATH') OR exit('No direct script access allowed');
+defined('BASEPATH') or exit('No direct script access allowed');
 $route['default_controller'] = 'auth';
 $route['404_override'] = '';
 $route['translate_uri_dashes'] = FALSE;
@@ -13,3 +13,10 @@ $route['usuarios/(:num)/editar'] = 'usuarios/editar/$1';
 $route['usuarios/(:num)/estado'] = 'usuarios/estado/$1';
 
 $route['inicio'] = 'inicio/index';
+$route['inventario'] = 'inventario/index';
+$route['inventario/crear'] = 'inventario/crear';
+$route['inventario/(:num)/editar'] = 'inventario/editar/$1';
+
+$route['pedidos'] = 'pedidos/index';
+$route['pedidos/crear'] = 'pedidos/crear';
+$route['pedidos/(:num)'] = 'pedidos/ver/$1';

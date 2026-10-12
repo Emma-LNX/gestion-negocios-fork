@@ -1,16 +1,17 @@
+// El botón cambia únicamente la visibilidad del campo, sin modificar su valor.
 const campoPassword = document.getElementById("password");
 const botonPassword = document.getElementById("ver-password");
 
-botonPassword.addEventListener("click", function () {
-    const estaOculta = campoPassword.type === "password";
+if (campoPassword && botonPassword) {
+    botonPassword.addEventListener("click", function () {
+        const mostrar = campoPassword.type === "password";
+        campoPassword.type = mostrar ? "text" : "password";
 
-    if (estaOculta) {
-        campoPassword.type = "text";
-        botonPassword.textContent = "Ocultar contraseña";
-    } else {
-        campoPassword.type = "password";
-        botonPassword.textContent = "Mostrar contraseña";
-    }
-
-    botonPassword.setAttribute("aria-pressed", String(estaOculta));
-});
+        const etiqueta = mostrar ? "Ocultar contraseña" : "Mostrar contraseña";
+        botonPassword.setAttribute("aria-label", etiqueta);
+        botonPassword.setAttribute("title", etiqueta);
+        botonPassword.setAttribute("aria-pressed", String(mostrar));
+        botonPassword.querySelector(".mostrar-password").hidden = mostrar;
+        botonPassword.querySelector(".ocultar-password").hidden = !mostrar;
+    });
+}
