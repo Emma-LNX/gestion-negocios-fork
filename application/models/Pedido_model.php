@@ -27,20 +27,70 @@ class Pedido_model extends MY_Model
             show_error('Usuario no autorizado.', 403);
         }
 
-        $guardado = $this->db->insert('pedidos', array(
-            'empresa_id' => $empresa_id,
-            'usuario_id' => $usuario_id,
-            'referencia' => $referencia,
-            'estado' => 'borrador',
-            'estado_pago' => 'pendiente',
-            'total' => '0.00'
-        ));
+        // El número visible y el pedido se guardan en la misma transacción.
+        $debug_anterior = $this->db->db_debug;
+        $this->db->db_debug = FALSE;
 
-        if (!$guardado) {
-            show_error('No se pudo guardar el pedido.', 503);
+        try {
+            if (!$this->db->trans_begin()) {
+                throw new RuntimeException('No se pudo iniciar el registro.');
+            }
+
+            // UPDATE bloquea el contador de esta empresa hasta terminar.
+            // Otra empresa puede seguir creando sus propios pedidos.
+            $actualizado = $this->db->query(
+                'UPDATE empresas
+                 SET ultimo_numero_pedido = ultimo_numero_pedido + 1
+                 WHERE id = ?',
+                array($empresa_id)
+            );
+
+            if (!$actualizado || $this->db->affected_rows() !== 1) {
+                throw new RuntimeException('No se pudo actualizar el contador.');
+            }
+
+            $consulta = $this->db
+                ->select('ultimo_numero_pedido')
+                ->where('id', $empresa_id)
+                ->get('empresas');
+
+            $empresa = $consulta ? $consulta->row_array() : NULL;
+
+            if (!$empresa) {
+                throw new RuntimeException('No se pudo consultar el contador.');
+            }
+
+            $guardado = $this->db->insert('pedidos', array(
+                'empresa_id' => $empresa_id,
+                'numero' => (int) $empresa['ultimo_numero_pedido'],
+                'usuario_id' => $usuario_id,
+                'referencia' => $referencia,
+                'estado' => 'borrador',
+                'estado_pago' => 'pendiente',
+                'total' => '0.00'
+            ));
+
+            if (!$guardado) {
+                throw new RuntimeException('No se pudo guardar el pedido.');
+            }
+
+            // Las rutas y los detalles siguen utilizando el ID interno.
+            $pedido_id = (int) $this->db->insert_id();
+
+            if (!$this->db->trans_status() || !$this->db->trans_commit()) {
+                throw new RuntimeException('No se pudo completar el registro.');
+            }
+
+            return $pedido_id;
+        } catch (Exception $error) {
+            $this->db->trans_rollback();
+            log_message('error', 'Fallo al crear el pedido con numeración por empresa.');
+        } finally {
+            $this->db->db_debug = $debug_anterior;
         }
 
-        return (int) $this->db->insert_id();
+        show_error('No se pudo guardar el pedido. Revisa la actualización de la base de datos e intenta nuevamente.', 503);
+        return 0;
     }
 
     public function listar()

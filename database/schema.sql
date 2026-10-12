@@ -3,6 +3,7 @@ CREATE TABLE
     empresas (
         id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
         nombre VARCHAR(120) NOT NULL,
+        ultimo_numero_pedido INT UNSIGNED NOT NULL DEFAULT 0,
         activa TINYINT (1) NOT NULL DEFAULT 1
     ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
 
@@ -246,6 +247,7 @@ CREATE TABLE
     pedidos (
         id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
         empresa_id INT UNSIGNED NOT NULL,
+        numero INT UNSIGNED NOT NULL,
         usuario_id INT UNSIGNED NOT NULL,
         referencia VARCHAR(150) NOT NULL,
         estado VARCHAR(20) NOT NULL DEFAULT 'borrador',
@@ -253,6 +255,7 @@ CREATE TABLE
         total DECIMAL(12, 2) UNSIGNED NOT NULL DEFAULT 0.00,
         creado_en DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
         confirmado_en DATETIME NULL,
+        UNIQUE KEY uq_pedido_empresa_numero (empresa_id, numero),
         UNIQUE KEY uq_pedido_empresa_id (empresa_id, id),
         KEY ix_pedido_empresa_fecha (empresa_id, creado_en),
         CONSTRAINT fk_pedido_empresa FOREIGN KEY (empresa_id) REFERENCES empresas (id),
