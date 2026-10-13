@@ -51,7 +51,8 @@ class Usuarios extends Protected_Controller
         }
         $this->load->view('usuarios/formulario', array(
             'usuario' => $this->usuario, 'roles' => $roles, 'datos' => $datos,
-            'titulo' => 'Crear usuario', 'accion' => 'usuarios/crear', 'creando' => TRUE
+            'titulo' => 'Crear usuario', 'accion' => 'usuarios/crear', 'creando' => TRUE,
+            'rol_editable' => TRUE
         ));
     }
 
@@ -73,6 +74,9 @@ class Usuarios extends Protected_Controller
             if ($id === $this->usuario->id() && (int) $datos['rol_id'] !== (int) $cuenta['rol_id']) {
                 $error = 'No puedes cambiar tu propio rol mientras utilizas la cuenta.';
             }
+            if ($id === $this->usuario->id()) {
+                $datos['rol_id'] = (string) $cuenta['rol_id'];
+            }
             if ($error === '') {
                 if (!$this->usuarios_model->actualizar_en_empresa($id, $datos['nombre'], $datos['rol_id'])) {
                     show_error('No se pudo actualizar el usuario.', 503);
@@ -84,7 +88,8 @@ class Usuarios extends Protected_Controller
         }
         $this->load->view('usuarios/formulario', array(
             'usuario' => $this->usuario, 'roles' => $roles, 'datos' => $datos,
-            'titulo' => 'Editar usuario', 'accion' => 'usuarios/'.$id.'/editar', 'creando' => FALSE
+            'titulo' => 'Editar usuario', 'accion' => 'usuarios/'.$id.'/editar', 'creando' => FALSE,
+            'rol_editable' => $id !== $this->usuario->id()
         ));
     }
 

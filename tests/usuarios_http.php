@@ -166,12 +166,30 @@ try {
         'La edición quedó almacenada');
 
     $formularioPropio = $admin->pedir('usuarios/'.$adminId.'/editar');
+    comprobar((bool) preg_match('/<select\b[^>]*\bid="rol_id"[^>]*\bdisabled\b/', $formularioPropio['body'])
+        && strpos($formularioPropio['body'], 'id="nota-rol-propio"') !== FALSE,
+        'El formulario bloquea el rol propio y explica el motivo');
+    comprobar(strpos($formularioPropio['body'], 'type="hidden" name="rol_id" value="'.$roles['administrador'].'"') !== FALSE,
+        'El formulario conserva el rol propio al guardar otros datos');
     $cambioPropio = $admin->pedir('usuarios/'.$adminId.'/editar', array(
         'nombre' => 'Administrador temporal',
         'rol_id' => $roles['cajero'],
         'gestion_csrf' => ClienteUsuarios::token($formularioPropio['body'])
     ));
     comprobar($cambioPropio['status'] === 422, 'El administrador no puede cambiar su propio rol');
+    $rolPropio = (int) $db->query('SELECT rol_id FROM usuarios WHERE id = '.$adminId)->fetch_assoc()['rol_id'];
+    comprobar($rolPropio === $roles['administrador'], 'El intento manipulado no cambia el rol almacenado');
+    $formularioPropio = $admin->pedir('usuarios/'.$adminId.'/editar');
+    $nombrePropio = $admin->pedir('usuarios/'.$adminId.'/editar', array(
+        'nombre' => 'Administrador con nombre actualizado',
+        'rol_id' => $roles['administrador'],
+        'gestion_csrf' => ClienteUsuarios::token($formularioPropio['body'])
+    ));
+    $filaPropia = $db->query('SELECT nombre, rol_id FROM usuarios WHERE id = '.$adminId)->fetch_assoc();
+    comprobar(redirige_a($nombrePropio, 'usuarios')
+        && $filaPropia['nombre'] === 'Administrador con nombre actualizado'
+        && (int) $filaPropia['rol_id'] === $roles['administrador'],
+        'El administrador puede editar su nombre conservando su rol');
 
     $lista = $admin->pedir('usuarios');
     $estadoPropio = $admin->pedir('usuarios/'.$adminId.'/estado', array(
