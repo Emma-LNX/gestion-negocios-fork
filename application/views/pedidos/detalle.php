@@ -184,6 +184,32 @@
     <p class="total-pedido"><strong>Total del pedido</strong>
         Q <?= number_format((float) $pedido['total'], 2) ?>
     </p>
+                    
+    <?php if ($pedido['estado'] === 'borrador'
+        && $usuario->puede('pedidos.confirmar')
+    ): ?>
+        <?php if (!empty($detalles)): ?>
+            <p>
+                Al confirmar, ya no podrás modificar los productos.
+                El pedido puede quedar pendiente de pago.
+            </p>
+
+            <?= form_open('pedidos/confirmar/' . (int) $pedido['id']) ?>
+                <button type="submit">
+                    Confirmar pedido
+                </button>
+            <?= form_close() ?>
+        <?php else: ?>
+            <p>Agrega al menos un producto para confirmar el pedido.</p>
+        <?php endif; ?>
+    <?php endif; ?>
+
+    <?php if (!empty($pedido['confirmado_en'])): ?>
+        <p>
+            <strong>Fecha de confirmación:</strong>
+            <?= html_escape($pedido['confirmado_en']) ?>
+        </p>
+    <?php endif; ?>
 </section>
 
 <?php $this->load->view('plantilla/pie'); ?>
