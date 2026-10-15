@@ -46,11 +46,17 @@ a {
   color: var(--oscuro);
 }
 
-button, input, select, textarea {
+button,
+input,
+select,
+textarea {
   font: inherit;
 }
 
-button, a, input, select {
+button,
+a,
+input,
+select {
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -157,7 +163,8 @@ button, a, input, select {
   letter-spacing: 1px;
 }
 
-.menu a, .boton-salir {
+.menu a,
+.boton-salir {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -205,7 +212,8 @@ footer {
 }
 
 /* Iconos con etiquetas: no es necesario adivinar la acción. */
-.boton, button {
+.boton,
+button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -222,7 +230,8 @@ footer {
   cursor: pointer;
 }
 
-.boton:hover, button:hover {
+.boton:hover,
+button:hover {
   background: #f3ad00;
 }
 
@@ -239,7 +248,8 @@ footer {
   justify-content: flex-start;
 }
 
-.boton-secundario:hover, .boton-salir:hover {
+.boton-secundario:hover,
+.boton-salir:hover {
   background: var(--crema);
 }
 
@@ -266,11 +276,15 @@ footer {
 }
 
 button:disabled {
-  opacity: .6;
+  opacity: 0.6;
   cursor: not-allowed;
 }
 
-a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, [tabindex="0"]:focus-visible {
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+[tabindex="0"]:focus-visible {
   outline: 3px solid var(--oscuro);
   outline-offset: 3px;
 }
@@ -382,7 +396,9 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 }
 
 /* Formularios */
-input, select, textarea {
+input,
+select,
+textarea {
   max-width: 100%;
   min-height: 42px;
   padding: 9px 11px;
@@ -403,7 +419,8 @@ input::placeholder {
   font-weight: bold;
 }
 
-.formulario input, .formulario select {
+.formulario input,
+.formulario select {
   width: 100%;
 }
 
@@ -411,12 +428,14 @@ input::placeholder {
   margin-top: 24px;
 }
 
-.formulario-inventario, .formulario-pedido {
+.formulario-inventario,
+.formulario-pedido {
   max-width: 660px;
   border-top: 4px solid var(--azul);
 }
 
-.formulario-inventario h1, .formulario-pedido h1 {
+.formulario-inventario h1,
+.formulario-pedido h1 {
   font-size: 24px;
 }
 
@@ -537,7 +556,8 @@ input::placeholder {
   margin-bottom: 7px;
 }
 
-.titulo-acciones > .boton, .titulo-acciones > p {
+.titulo-acciones > .boton,
+.titulo-acciones > p {
   flex-shrink: 0;
 }
 
@@ -555,7 +575,8 @@ table {
   font-size: 14px;
 }
 
-th, td {
+th,
+td {
   padding: 14px 16px;
   text-align: left;
   border-bottom: 1px solid #e2e6eb;
@@ -598,7 +619,8 @@ td[colspan] {
   overflow-wrap: anywhere;
 }
 
-.estado, .estado-stock {
+.estado,
+.estado-stock {
   display: inline-block;
   padding: 4px 10px;
   border: 1px solid #bdd1df;
@@ -687,7 +709,8 @@ td[colspan] {
   min-width: 0;
 }
 
-.filtros-inventario button, .filtros-inventario a {
+.filtros-inventario button,
+.filtros-inventario a {
   font-size: 13px;
 }
 
@@ -804,7 +827,8 @@ td[colspan] {
   .menu-titulo {
     display: none;
   }
-  .menu a, .boton-salir {
+  .menu a,
+  .boton-salir {
     width: auto;
     min-height: 42px;
     padding: 9px 11px;
@@ -857,7 +881,8 @@ td[colspan] {
   .bienvenida-icono {
     display: none;
   }
-  .filtros-inventario input[type="search"], .filtros-inventario select {
+  .filtros-inventario input[type="search"],
+  .filtros-inventario select {
     flex: 1 1 100%;
     width: 100%;
   }
@@ -868,4 +893,34 @@ td[colspan] {
   .agregar-producto p:first-of-type {
     flex-basis: 100%;
   }
+}
+
+/* Acciones del inventario */
+.acciones-inventario-fila {
+  white-space: normal;
+}
+
+.acciones-inventario-fila .boton {
+  margin: 2px;
+}
+
+.form-estado-insumo {
+  display: inline-block;
+  margin: 0;
+}
+
+.form-estado-insumo button {
+  width: auto;
+}
+
+/* Paginación */
+.paginacion-inventario {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+
+.paginacion-inventario a[aria-current="page"] {
+  font-weight: bold;
 }
