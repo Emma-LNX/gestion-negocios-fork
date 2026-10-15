@@ -398,4 +398,108 @@ class Pedido_model extends MY_Model
             $this->db->db_debug = $debug_anterior;
         }
     }
+        public function confirmar($pedido_id)
+    {
+        $empresa_id = $this->empresa_id();
+        $debug_anterior = $this->db->db_debug;
+        $this->db->db_debug = FALSE;
+
+        $ejecutar = function ($sql, $valores) {
+            $resultado = $this->db->query($sql, $valores);
+
+            if ($resultado === FALSE) {
+                throw new RuntimeException('Error de base de datos.');
+            }
+
+            return $resultado;
+        };
+
+        try {
+            if (!$this->db->trans_begin()) {
+                throw new RuntimeException('No se pudo iniciar la operación.');
+            }
+
+            // Usa el mismo bloqueo que agregar y modificar productos.
+            $pedido = $ejecutar(
+                'SELECT id, estado
+                 FROM pedidos
+                 WHERE id = ? AND empresa_id = ?
+                 FOR UPDATE',
+                array($pedido_id, $empresa_id)
+            )->row_array();
+
+            if (!$pedido) {
+                throw new InvalidArgumentException('Pedido no encontrado.');
+            }
+
+            if ($pedido['estado'] !== 'borrador') {
+                throw new InvalidArgumentException(
+                    'Solo puedes confirmar un pedido en borrador.'
+                );
+            }
+
+            $resumen = $ejecutar(
+                'SELECT
+                    COUNT(*) AS productos,
+                    COALESCE(SUM(cantidad * precio_unitario), 0) AS total,
+                    COALESCE(SUM(cantidad * precio_unitario), 0)
+                        > 9999999999.99 AS excede,
+                    COALESCE(SUM(cantidad < 1 OR cantidad > 999), 0)
+                        AS invalidos
+                 FROM pedido_detalles
+                 WHERE pedido_id = ? AND empresa_id = ?',
+                array($pedido_id, $empresa_id)
+            )->row_array();
+
+            if ((int) $resumen['productos'] === 0) {
+                throw new InvalidArgumentException(
+                    'Agrega al menos un producto antes de confirmar.'
+                );
+            }
+
+            if ((int) $resumen['invalidos'] > 0) {
+                throw new InvalidArgumentException(
+                    'Las cantidades deben estar entre 1 y 999.'
+                );
+            }
+
+            if ($resumen['excede']) {
+                throw new InvalidArgumentException(
+                    'El total supera el límite permitido.'
+                );
+            }
+
+            // "pendiente" significa pendiente de preparación.
+            // El estado de pago no cambia.
+            $ejecutar(
+                'UPDATE pedidos
+                 SET estado = ?,
+                     total = ?,
+                     confirmado_en = CURRENT_TIMESTAMP
+                 WHERE id = ? AND empresa_id = ?',
+                array(
+                    'pendiente',
+                    $resumen['total'],
+                    $pedido_id,
+                    $empresa_id
+                )
+            );
+
+            if (!$this->db->trans_status() || !$this->db->trans_commit()) {
+                throw new RuntimeException('No se pudo completar la operación.');
+            }
+
+            return NULL;
+        } catch (InvalidArgumentException $error) {
+            $this->db->trans_rollback();
+            return $error->getMessage();
+        } catch (Exception $error) {
+            $this->db->trans_rollback();
+            log_message('error', 'Fallo al confirmar el pedido.');
+
+            return 'No se pudo confirmar el pedido. Intenta nuevamente.';
+        } finally {
+            $this->db->db_debug = $debug_anterior;
+        }
+    }
 }

@@ -242,4 +242,35 @@ class Pedidos extends Protected_Controller
 
         redirect('pedidos/' . (int) $id);
     }
+        public function confirmar($id = NULL)
+    {
+        $this->solo_metodo('POST');
+        $this->requerir_permiso('pedidos.ver');
+        $this->requerir_permiso('pedidos.confirmar');
+
+        if (
+            !is_string($id)
+            || !ctype_digit($id)
+            || strlen($id) > 10
+            || (int) $id < 1
+        ) {
+            show_404();
+            return;
+        }
+
+        // Solo permite acceder a pedidos de la empresa actual.
+        if (!$this->pedidos_model->buscar($id)) {
+            show_404();
+            return;
+        }
+
+        $error = $this->pedidos_model->confirmar((int) $id);
+
+        if ($error !== NULL) {
+            show_error(html_escape($error), 400);
+            return;
+        }
+
+        redirect('pedidos/' . (int) $id);
+    }
 }
