@@ -16,3 +16,8 @@ $route['inventario/(:num)/editar'] = 'inventario/editar/$1';
 $route['pedidos'] = 'pedidos/index';
 $route['pedidos/crear'] = 'pedidos/crear';
 $route['pedidos/(:num)'] = 'pedidos/ver/$1';
+
+$route['inventario/exportar'] = 'inventario/exportar';
+$route['inventario/(:num)/movimiento'] = 'inventario/movimiento/$1';
+$route['inventario/(:num)/historial'] = 'inventario/historial/$1';
+$route['inventario/(:num)/estado'] = 'inventario/estado/$1';
