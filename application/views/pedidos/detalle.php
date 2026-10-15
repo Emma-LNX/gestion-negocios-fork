@@ -2,6 +2,12 @@
 
 <?php $puede_editar = $pedido['estado'] === 'borrador' && $usuario->puede('pedidos.crear'); ?>
 
+<?php if ($mensaje = $this->session->flashdata('mensaje_pedido')): ?>
+    <div class="aviso" role="status">
+        <?= html_escape($mensaje) ?>
+    </div>
+<?php endif; ?>
+
 <p>
     <a class="boton boton-secundario" href="<?= html_escape(site_url('pedidos')) ?>"><img class="icono" src="<?= html_escape(base_url('assets/iconos/volver.svg')) ?>" alt="" width="22" height="22"><span>Volver a pedidos</span></a>
 </p>
@@ -184,6 +190,34 @@
     <p class="total-pedido"><strong>Total del pedido</strong>
         Q <?= number_format((float) $pedido['total'], 2) ?>
     </p>
+
+    <?php if (
+        $pedido['estado'] === 'borrador'
+        && $usuario->puede('pedidos.confirmar')
+    ): ?>
+        <?php if (!empty($detalles)): ?>
+            <p>
+                Al confirmar, los productos ya no podrán modificarse y el
+                pedido aparecerá en cocina.
+            </p>
+
+            <?= form_open('pedidos/' . (int) $pedido['id'] . '/confirmar') ?>
+                <button type="submit">
+                    <img class="icono" src="<?= html_escape(base_url('assets/iconos/correcto.svg')) ?>" alt="" width="22" height="22">
+                    <span>Confirmar y enviar a cocina</span>
+                </button>
+            <?= form_close() ?>
+        <?php else: ?>
+            <p>Agrega al menos un producto antes de confirmar el pedido.</p>
+        <?php endif; ?>
+    <?php endif; ?>
+
+    <?php if (!empty($pedido['confirmado_en'])): ?>
+        <p>
+            <strong>Confirmado:</strong>
+            <?= html_escape($pedido['confirmado_en']) ?>
+        </p>
+    <?php endif; ?>
 </section>
 
 <?php $this->load->view('plantilla/pie'); ?>
