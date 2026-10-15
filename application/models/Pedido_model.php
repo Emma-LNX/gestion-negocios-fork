@@ -502,4 +502,162 @@ class Pedido_model extends MY_Model
             $this->db->db_debug = $debug_anterior;
         }
     }
+        public function cancelar($pedido_id, $motivo)
+    {
+        // Validar el motivo también en el servidor.
+        if (
+            !is_string($motivo)
+            || trim($motivo) === ''
+            || mb_strlen(trim($motivo), 'UTF-8') > 500
+        ) {
+            return 'Escribe un motivo de entre 1 y 500 caracteres.';
+        }
+
+        $motivo = trim($motivo);
+
+        // Obtener la identidad desde la sesión, no desde el formulario.
+        $ci =& get_instance();
+        $ci->load->library('Autenticacion');
+        $usuario = $ci->autenticacion->usuario_actual();
+
+        if (!$usuario || !$usuario->puede('pedidos.cancelar')) {
+            return 'No tienes permiso para cancelar pedidos.';
+        }
+
+        $empresa_id = $this->empresa_id();
+        $debug_anterior = $this->db->db_debug;
+        $this->db->db_debug = FALSE;
+
+        $ejecutar = function ($sql, $valores) {
+            $resultado = $this->db->query($sql, $valores);
+
+            if ($resultado === FALSE) {
+                throw new RuntimeException('Error de base de datos.');
+            }
+
+            return $resultado;
+        };
+
+        try {
+            if (!$this->db->trans_begin()) {
+                throw new RuntimeException('No se pudo iniciar la operación.');
+            }
+
+            // Bloquear el pedido mientras se procesa la cancelación.
+            $pedido = $ejecutar(
+                'SELECT id, estado, estado_pago
+                 FROM pedidos
+                 WHERE id = ? AND empresa_id = ?
+                 FOR UPDATE',
+                array($pedido_id, $empresa_id)
+            )->row_array();
+
+            if (!$pedido) {
+                throw new InvalidArgumentException('Pedido no encontrado.');
+            }
+
+            // Revalidar que el usuario sigue autorizado.
+            $autorizado = $ejecutar(
+                'SELECT u.id
+                 FROM usuarios u
+                 JOIN empresas e ON e.id = u.empresa_id
+                 JOIN rol_permisos rp ON rp.rol_id = u.rol_id
+                 JOIN permisos p ON p.id = rp.permiso_id
+                 WHERE u.id = ?
+                   AND u.empresa_id = ?
+                   AND u.activo = 1
+                   AND e.activa = 1
+                   AND p.codigo = ?
+                 LIMIT 1',
+                array(
+                    $usuario->id(),
+                    $empresa_id,
+                    'pedidos.cancelar'
+                )
+            )->row_array();
+
+            if (!$autorizado) {
+                throw new InvalidArgumentException(
+                    'No tienes permiso para cancelar pedidos.'
+                );
+            }
+
+            $estados_permitidos = array(
+                'borrador',
+                'pendiente',
+                'en_preparacion',
+                'listo'
+            );
+
+            if (!in_array($pedido['estado'], $estados_permitidos, TRUE)) {
+                throw new InvalidArgumentException(
+                    'Este pedido ya fue cancelado, entregado o no admite cancelación.'
+                );
+            }
+
+            if ($pedido['estado_pago'] !== 'pendiente') {
+                throw new InvalidArgumentException(
+                    'Un pedido con pagos requiere gestionar la devolución antes de cancelarlo.'
+                );
+            }
+
+            // Registrar la autorización y el motivo.
+            $ejecutar(
+                'INSERT INTO pedido_cancelaciones
+                 (pedido_id, empresa_id, usuario_id, motivo, estado_anterior)
+                 VALUES (?, ?, ?, ?, ?)',
+                array(
+                    $pedido_id,
+                    $empresa_id,
+                    $usuario->id(),
+                    $motivo,
+                    $pedido['estado']
+                )
+            );
+
+            // Conservar los productos y el total como registro histórico.
+            $ejecutar(
+                'UPDATE pedidos
+                 SET estado = ?
+                 WHERE id = ? AND empresa_id = ?',
+                array('cancelado', $pedido_id, $empresa_id)
+            );
+
+            if (!$this->db->trans_status() || !$this->db->trans_commit()) {
+                throw new RuntimeException('No se pudo completar la operación.');
+            }
+
+            return NULL;
+        } catch (InvalidArgumentException $error) {
+            $this->db->trans_rollback();
+            return $error->getMessage();
+        } catch (Exception $error) {
+            $this->db->trans_rollback();
+            log_message('error', 'Fallo al cancelar el pedido.');
+
+            return 'No se pudo cancelar el pedido. Revisa la migración 004.';
+        } finally {
+            $this->db->db_debug = $debug_anterior;
+        }
+    }
+        public function cancelacion($pedido_id)
+    {
+        $consulta = $this->db
+            ->select('c.*, u.nombre AS autorizado_por')
+            ->from('pedido_cancelaciones c')
+            ->join(
+                'usuarios u',
+                'u.id = c.usuario_id AND u.empresa_id = c.empresa_id',
+                'left'
+            )
+            ->where('c.pedido_id', (int) $pedido_id)
+            ->where('c.empresa_id', $this->empresa_id())
+            ->get();
+
+        if (!$consulta) {
+            show_error('No se pudo consultar la cancelación.', 503);
+        }
+
+        return $consulta->row_array();
+    }
 }

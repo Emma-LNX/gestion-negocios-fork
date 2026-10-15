@@ -6,6 +6,18 @@
     <a class="boton boton-secundario" href="<?= html_escape(site_url('pedidos')) ?>"><img class="icono" src="<?= html_escape(base_url('assets/iconos/volver.svg')) ?>" alt="" width="22" height="22"><span>Volver a pedidos</span></a>
 </p>
 
+<?php if (!empty($mensaje)): ?>
+    <p role="status">
+        <?= html_escape($mensaje) ?>git
+    </p>
+<?php endif; ?>
+
+<?php if (!empty($error_pedido)): ?>
+    <div class="error" role="alert">
+        <?= html_escape($error_pedido) ?>
+    </div>
+<?php endif; ?>
+
 <section class="recuadro">
     <h1>Pedido #<?= (int) $pedido['numero'] ?></h1>
 
@@ -210,6 +222,90 @@
             <?= html_escape($pedido['confirmado_en']) ?>
         </p>
     <?php endif; ?>
+    <?php if (!empty($cancelacion)): ?>
+
+    <h2 class="subtitulo-linea">Registro de cancelación</h2>
+
+    <p>
+        <strong>Motivo:</strong>
+        <?= nl2br(html_escape($cancelacion['motivo'])) ?>
+    </p>
+
+    <p>
+        <strong>Autorizado por:</strong>
+        <?= html_escape(
+            $cancelacion['autorizado_por'] ?? 'Usuario no disponible'
+        ) ?>
+    </p>
+
+    <p>
+        <strong>Fecha de cancelación:</strong>
+        <?= html_escape($cancelacion['cancelado_en']) ?>
+    </p>
+
+    <p>
+        <strong>Estado anterior:</strong>
+        <?= html_escape($cancelacion['estado_anterior']) ?>
+    </p>
+
+    <p>
+        Este pedido está cancelado. Sus productos y total
+        se conservan como registro histórico.
+    </p>
+
+<?php elseif (
+    $usuario->puede('pedidos.cancelar')
+    && in_array(
+        $pedido['estado'],
+        array('borrador', 'pendiente', 'en_preparacion', 'listo'),
+        TRUE
+    )
+    && $pedido['estado_pago'] === 'pendiente'
+): ?>
+
+    <h2 class="subtitulo-linea">Cancelar pedido</h2>
+
+    <p>
+        La cancelación quedará autorizada con tu usuario.
+        Después no podrás modificar este pedido.
+    </p>
+
+    <?= form_open('pedidos/cancelar/' . (int) $pedido['id']) ?>
+
+        <p>
+            <label for="motivo">Motivo de cancelación</label>
+        </p>
+
+        <p>
+            <textarea
+                id="motivo"
+                name="motivo"
+                rows="4"
+                cols="35"
+                maxlength="500"
+                required
+            ><?= html_escape($motivo_anterior ?? '') ?></textarea>
+        </p>
+
+        <p>
+            <label>
+                <input
+                    type="checkbox"
+                    name="confirmar_cancelacion"
+                    value="1"
+                    required
+                >
+                Autorizo cancelar este pedido.
+            </label>
+        </p>
+
+        <button type="submit" class="boton-quitar">
+            Cancelar pedido
+        </button>
+
+    <?= form_close() ?>
+
+<?php endif; ?>
 </section>
 
 <?php $this->load->view('plantilla/pie'); ?>
