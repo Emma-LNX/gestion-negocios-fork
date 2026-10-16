@@ -283,6 +283,21 @@ $mensaje = $this->session->flashdata('mensaje_inventario');
                     <!-- Acciones -->
 
                     <td class="acciones-inventario-fila">
+                        <?php if (
+                            $activoInsumo
+                            && $usuario->puede('inventario.ver')
+                            && $usuario->puede('productos.gestionar')
+                        ): ?>
+
+                            <a
+                                class="boton boton-secundario boton-compacto"
+                                href="<?= html_escape(
+                                    site_url('inventario/vender/' . $idInsumo)
+                                ) ?>">
+                                <span>Habilitar para venta</span>
+                            </a>
+
+                        <?php endif; ?>
 
                         <?php if ($puedeGestionar && $activoInsumo): ?>
 
