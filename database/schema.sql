@@ -282,6 +282,7 @@ CREATE TABLE
         empresa_id INT UNSIGNED NOT NULL,
         pedido_id INT UNSIGNED NOT NULL,
         usuario_id INT UNSIGNED NOT NULL,
+        rol_codigo VARCHAR(50) NOT NULL,
         estado_anterior VARCHAR(20) NOT NULL,
         estado_nuevo VARCHAR(20) NOT NULL,
         creado_en DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,

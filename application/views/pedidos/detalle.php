@@ -218,6 +218,37 @@
             <?= html_escape($pedido['confirmado_en']) ?>
         </p>
     <?php endif; ?>
+
+    <?php if (!empty($eventos)): ?>
+        <h2 class="subtitulo-linea">Historial de estados</h2>
+
+        <div class="tabla">
+            <table class="tabla-historial-pedido">
+                <thead>
+                    <tr>
+                        <th>Cambio</th>
+                        <th>Responsable</th>
+                        <th>Rol</th>
+                        <th>Fecha</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($eventos as $evento): ?>
+                        <tr>
+                            <td>
+                                <?= html_escape(ucfirst($evento['estado_anterior'])) ?>
+                                →
+                                <?= html_escape(ucfirst($evento['estado_nuevo'])) ?>
+                            </td>
+                            <td><?= html_escape($evento['usuario_nombre']) ?></td>
+                            <td><?= html_escape(ucfirst($evento['rol_codigo'])) ?></td>
+                            <td><?= html_escape($evento['creado_en']) ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+    <?php endif; ?>
 </section>
 
 <?php $this->load->view('plantilla/pie'); ?>

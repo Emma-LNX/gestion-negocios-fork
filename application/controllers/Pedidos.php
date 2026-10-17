@@ -114,6 +114,7 @@ class Pedidos extends Protected_Controller
             'usuario' => $this->usuario,
             'pedido' => $pedido,
             'detalles' => $this->pedidos_model->detalles($id),
+            'eventos' => $this->pedidos_model->eventos($id),
             'productos' => $this->productos_model->listar()
         ));
     }
@@ -210,7 +211,8 @@ class Pedidos extends Protected_Controller
 
         $error = $this->pedidos_model->confirmar(
             (int) $id,
-            $this->usuario->id()
+            $this->usuario->id(),
+            $this->usuario->rol()
         );
 
         if ($error !== NULL) {

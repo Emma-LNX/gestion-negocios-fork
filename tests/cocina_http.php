@@ -232,6 +232,16 @@ try {
     comprobar($eventos === 4, 'Se registran confirmación y tres transiciones con trazabilidad');
     comprobar(!str_contains($cocineroA->pedir('cocina')['body'], $referenciaA), 'El pedido entregado sale de la cola activa');
 
+    $historial = $cajero->pedir('pedidos/'.$pedidoA);
+    comprobar(
+        $historial['status'] === 200
+        && str_contains($historial['body'], 'Cajero cocina temporal')
+        && str_contains($historial['body'], 'Cocinero temporal A')
+        && str_contains($historial['body'], 'Borrador')
+        && str_contains($historial['body'], 'Entregado'),
+        'El detalle muestra estados, responsables y roles del historial'
+    );
+
     echo "\nTodas las pruebas HTTP de cocina finalizaron correctamente.\n";
 } catch (Throwable $error) {
     fwrite(STDERR, "\nFALLO: ".$error->getMessage()."\n");

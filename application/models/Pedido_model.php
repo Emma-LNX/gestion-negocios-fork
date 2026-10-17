@@ -192,6 +192,30 @@ class Pedido_model extends MY_Model
         return $consulta->result_array();
     }
 
+    public function eventos($pedido_id)
+    {
+        $consulta = $this->db
+            ->select(
+                'pedido_eventos.estado_anterior, '
+                . 'pedido_eventos.estado_nuevo, '
+                . 'pedido_eventos.rol_codigo, '
+                . 'pedido_eventos.creado_en, '
+                . 'usuarios.nombre AS usuario_nombre'
+            )
+            ->from('pedido_eventos')
+            ->join('usuarios', 'usuarios.id = pedido_eventos.usuario_id')
+            ->where('pedido_eventos.pedido_id', (int) $pedido_id)
+            ->where('pedido_eventos.empresa_id', $this->empresa_id())
+            ->order_by('pedido_eventos.id', 'ASC')
+            ->get();
+
+        if (!$consulta) {
+            show_error('No se pudo consultar el historial del pedido.', 503);
+        }
+
+        return $consulta->result_array();
+    }
+
         public function agregar_producto($pedido_id, $producto_id, $cantidad)
     {
         if ($cantidad < 1 || $cantidad > 999) {
@@ -453,7 +477,7 @@ class Pedido_model extends MY_Model
         }
     }
 
-    public function confirmar($pedido_id, $usuario_id)
+    public function confirmar($pedido_id, $usuario_id, $rol_codigo)
     {
         $empresa_id = $this->empresa_id();
         $debug_anterior = $this->db->db_debug;
@@ -539,13 +563,14 @@ class Pedido_model extends MY_Model
 
             $ejecutar(
                 'INSERT INTO pedido_eventos
-                 (empresa_id, pedido_id, usuario_id,
+                 (empresa_id, pedido_id, usuario_id, rol_codigo,
                   estado_anterior, estado_nuevo)
-                 VALUES (?, ?, ?, ?, ?)',
+                 VALUES (?, ?, ?, ?, ?, ?)',
                 array(
                     $empresa_id,
                     $pedido_id,
                     $usuario_id,
+                    $rol_codigo,
                     'borrador',
                     'pendiente'
                 )
@@ -569,7 +594,12 @@ class Pedido_model extends MY_Model
         }
     }
 
-    public function actualizar_estado_cocina($pedido_id, $estado_nuevo, $usuario_id)
+    public function actualizar_estado_cocina(
+        $pedido_id,
+        $estado_nuevo,
+        $usuario_id,
+        $rol_codigo
+    )
     {
         $transiciones = array(
             'pendiente' => 'preparacion',
@@ -643,13 +673,14 @@ class Pedido_model extends MY_Model
 
             $ejecutar(
                 'INSERT INTO pedido_eventos
-                 (empresa_id, pedido_id, usuario_id,
+                 (empresa_id, pedido_id, usuario_id, rol_codigo,
                   estado_anterior, estado_nuevo)
-                 VALUES (?, ?, ?, ?, ?)',
+                 VALUES (?, ?, ?, ?, ?, ?)',
                 array(
                     $empresa_id,
                     $pedido_id,
                     $usuario_id,
+                    $rol_codigo,
                     $estado_anterior,
                     $estado_nuevo
                 )

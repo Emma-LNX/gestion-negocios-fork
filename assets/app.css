@@ -726,6 +726,10 @@ td[colspan] {
   justify-content: center;
 }
 
+.tabla-historial-pedido {
+  min-width: 650px;
+}
+
 /* Resumen y filtros de inventario */
 .resumen-inventario {
   display: grid;

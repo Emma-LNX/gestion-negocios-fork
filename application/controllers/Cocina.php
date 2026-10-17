@@ -51,7 +51,8 @@ class Cocina extends Protected_Controller
         $error = $this->pedidos_model->actualizar_estado_cocina(
             (int) $id,
             $estado,
-            $this->usuario->id()
+            $this->usuario->id(),
+            $this->usuario->rol()
         );
 
         if ($error !== NULL) {
