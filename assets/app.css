@@ -561,6 +561,53 @@ input::placeholder {
   flex-shrink: 0;
 }
 
+.boton-enlace {
+  display: inline-flex;
+  align-items: center;
+  min-height: 42px;
+  padding: 9px 15px;
+  color: var(--oscuro);
+  background: var(--amarillo);
+  border: 1px solid #d79c0a;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.acciones {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.acciones form {
+  margin: 0;
+}
+
+.pagina-prueba {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 30px;
+}
+
+.pagina-formulario {
+  max-width: 660px;
+  margin: 0 auto;
+  padding: 30px;
+}
+
+.estado.activo {
+  color: #176b35;
+  background: #e7f5ec;
+  border-color: #9bc8aa;
+}
+
+.estado.inactivo {
+  color: #852719;
+  background: #fff0ec;
+  border-color: #d2a297;
+}
+
 .tabla {
   max-width: 100%;
   overflow-x: auto;

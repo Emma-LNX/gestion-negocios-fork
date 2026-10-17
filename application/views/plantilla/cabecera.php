@@ -35,6 +35,9 @@
             <?php if ($usuario->puede('pedidos.ver')): ?>
                 <a class="<?= $seccion === 'pedidos' ? 'seleccionado' : '' ?>" href="<?= html_escape(site_url('pedidos')) ?>" <?= $seccion === 'pedidos' ? 'aria-current="page"' : '' ?>><img class="icono" src="<?= html_escape(base_url('assets/iconos/pedidos.svg')) ?>" alt="" width="22" height="22"><span>Pedidos</span></a>
             <?php endif; ?>
+            <?php if ($usuario->puede('usuarios.ver')): ?>
+                <a class="<?= $seccion === 'usuarios' ? 'seleccionado' : '' ?>" href="<?= html_escape(site_url('usuarios')) ?>" <?= $seccion === 'usuarios' ? 'aria-current="page"' : '' ?>><img class="icono" src="<?= html_escape(base_url('assets/iconos/usuario.svg')) ?>" alt="" width="22" height="22"><span>Usuarios</span></a>
+            <?php endif; ?>
             <?= form_open('salir', array('class' => 'formulario-salir')) ?>
                 <button type="submit" class="boton-salir" title="Cerrar tu sesión"><img class="icono" src="<?= html_escape(base_url('assets/iconos/salir.svg')) ?>" alt="" width="22" height="22"><span>Cerrar sesión</span></button>
             <?= form_close() ?>

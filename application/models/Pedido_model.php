@@ -107,7 +107,7 @@ class Pedido_model extends MY_Model
 
         return $consulta->result_array();
     }
-        
+
     public function buscar($id)
     {
         $consulta = $this->db

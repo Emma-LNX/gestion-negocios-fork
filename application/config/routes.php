@@ -7,6 +7,10 @@ $route['login'] = 'auth/index';
 $route['salir'] = 'auth/salir';
 $route['productos'] = 'productos/index';
 $route['productos/(:num)'] = 'productos/ver/$1';
+$route['usuarios'] = 'usuarios/index';
+$route['usuarios/crear'] = 'usuarios/crear';
+$route['usuarios/(:num)/editar'] = 'usuarios/editar/$1';
+$route['usuarios/(:num)/estado'] = 'usuarios/estado/$1';
 
 $route['inicio'] = 'inicio/index';
 $route['inventario'] = 'inventario/index';
@@ -16,7 +20,6 @@ $route['inventario/(:num)/editar'] = 'inventario/editar/$1';
 $route['pedidos'] = 'pedidos/index';
 $route['pedidos/crear'] = 'pedidos/crear';
 $route['pedidos/(:num)'] = 'pedidos/ver/$1';
-
 $route['inventario/exportar'] = 'inventario/exportar';
 $route['inventario/(:num)/movimiento'] = 'inventario/movimiento/$1';
 $route['inventario/(:num)/historial'] = 'inventario/historial/$1';
